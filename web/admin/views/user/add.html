@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/add.css"/>
+	</head>
+	<body>
+		<div id="app">
+			<div class="header">
+				<span>添加用户</span>
+			</div>
+			<div class="content">
+				<table>
+					<tr>
+						<td class="text-right">姓名</td><td class="content_right"><input class="input" placeholder="请输入姓名"></td>
+					</tr>
+					<tr>
+						<td class="text-right">手机号码</td><td class="content_right"><input class="input" placeholder="请输入手机号码"></td>
+					</tr>
+					<tr>
+						<td class="text-right">密码</td><td class="content_right"><input class="input" placeholder="请输入密码"></td>
+					</tr>
+					<tr>
+						<td></td><td class="content_right"><span class="btn btn-info" id="submit">立即提交</span></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<script src="../../assets/layui.all.js"></script>
+		<script src="/qrcode/jquery2.1.4.js"></script>
+		<script src="/layer/layer.js"></script>
+		<script>
+			$(function () {
+				$("#submit").click(function () {
+					//console.log("******")
+					var windowId = layer.load();//加载转圈
+					var username = $("input:eq(0)").val();
+					var userPhone = $("input:eq(1)").val();
+					var password = $("input:eq(2)").val();
+
+					var re_phone=/^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$/;
+
+					if (re_phone.test(userPhone)){
+						//发送ajax
+						$.post("/user/insert.do",{
+							username:username,
+							userPhone:userPhone,
+							password:password
+						},function (data) {
+							layer.close(windowId);
+							layer.msg(data.result);
+							if(data.status==0){
+								//录入成功
+								$("input").val("");//清空输入,恢复默认
+								$("input:eq(0)").val(username);
+							}else{
+								//录入失败
+							}
+						});
+					}else {
+						//手机号验证失败，执行layer.msg进行提示
+						layer.close(windowId);
+						layer.msg("请输入正确的手机号码")
+						$("input:eq(1)").val("");
+					}
+
+					return false;
+				});
+			});
+		</script>
+	</body>
+</html>

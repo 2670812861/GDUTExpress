@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <div class="expUserInfoCont" id="expUserInfoCont" >
+
+        </div>
+    </body>
+
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script src="layer/layer.js"></script>
+    <script type="text/javascript">
+        var str = location.href //获取整个地址栏
+        var num = str.indexOf("=");
+        var expressNum = str.substr(num+1);
+        $.getJSON("/ul/indexQueryExpress.do",{expressNum:expressNum},function (data) {
+            if (data.status==0){
+                //清空列表
+                $("#expUserInfoCont").html("");
+                var express = data.data;
+                console.log(express.status);
+                if (express.status=="未取件"){
+                    //未取件
+                    var item = "<div class=\"expInfoCont status0\">\n" +
+                        "\t\t\t<table>\n" +
+                        "\t\t\t\t<tr>\n" +
+                        "\t\t\t\t\t<td>快递公司：</td><td>"+express.company+"</td>\n" +
+                        "\t\t\t\t</tr>\n" +
+                        "\t\t\t\t<tr>\n" +
+                        "\t\t\t\t\t<td>快递单号：</td><td>"+express.number+"</td>\n" +
+                        "\t\t\t\t</tr>\n" +
+                        "\t\t\t\t<tr>\n" +
+                        "\t\t\t\t\t<td>到件时间：</td><td>"+express.inTime+"</td>\n" +
+                        "\t\t\t\t</tr>\n" +
+                        "\t\t\t</table>\n" +
+                        "\t\t\t<div class=\"btns\">\n" +
+                        "\t\t\t\t<button class=\"btn-success\" onclick=\"updateStatus('"+express.number+"',1)\">确认收货</button>\n" +
+                        "\t\t\t</div>\n" +
+                        "\t\t</div>"
+                }else{
+                    //已取件
+                    var item ="<div class=\"expInfoCont status1\">\n" +
+                        "\t\t\t<table>\n" +
+                        "\t\t\t\t<tr>\n" +
+                        "\t\t\t\t\t<td>快递公司：</td><td>"+express.company+"</td>\n" +
+                        "\t\t\t\t</tr>\n" +
+                        "\t\t\t\t<tr>\n" +
+                        "\t\t\t\t\t<td>快递单号：</td><td>"+express.number+"</td>\n" +
+                        "\t\t\t\t</tr>\n" +
+                        "\t\t\t\t<tr>\n" +
+                        "\t\t\t\t\t<td>到件时间：</td><td>"+express.inTime+"</td>\n" +
+                        "\t\t\t\t</tr>\n" +
+                        "\t\t\t\t<tr>\n" +
+                        "\t\t\t\t\t<td>取件时间：</td><td>"+express.outTime+"</td>\n" +
+                        "\t\t\t\t</tr>\n" +
+                        "\t\t\t</table>\n" +
+                        "\t\t</div>"
+                }
+
+                $("#expUserInfoCont").append($(item));
+            }
+        })
+
+        //根据单号，确认收货
+        function updateStatus(expressNum,type) {
+            //alert("点击的取件码是:"+code);
+            var windowId = layer.load();
+            //type==0表示的是用户
+            if (type==0){
+                //因为这是从用户的手机号码走过来的流程，才需要重新刷新列表
+                $.getJSON("/wx/updateStatusByExpressNum.do",{expressNum:expressNum},function (data) {
+                    layer.msg(data.result);
+                    //清空列表
+                    $("#expUserInfoCont").html("");
+                    layer.close(windowId);
+                    //重新加载未取件的列表
+                    getExpress();
+                })
+            }else{
+                //快递员的快递扫码确认收货
+                $.getJSON("/wx/updateStatusByExpressNum.do",{expressNum:expressNum},function (data) {
+                    layer.msg(data.result);
+                    $("#expUserInfoCont").html("");
+                    layer.close(windowId);
+                })
+            }
+        }
+    </script>
+    <style type="text/css">
+        .expUserInfoCont{
+            width: 90%;
+            margin: 20px auto 20px;
+            font-size: 14px;
+        }
+    </style>
+</html>

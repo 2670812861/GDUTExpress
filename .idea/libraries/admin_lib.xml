@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="admin_lib">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/web/admin/WEB-INF/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
